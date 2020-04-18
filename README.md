@@ -11,6 +11,7 @@ Please download the following packages if you haven't already.
 4. Scikit-learn
 5. Seaborn (Skip this if you are not going to visualize the results)
 
+## Dataset
 You can download the dataset I used in the link below. You only need this if you are going to train
 a new model, because a trained model is provide in the folder "saved_models".
 

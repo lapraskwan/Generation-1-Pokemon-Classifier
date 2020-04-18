@@ -49,12 +49,12 @@ def main(arg_list=None):
     top_k = args.top_k if args.top_k else 1
 
     # Load and preprocess images
-    X = preprocess.load_images(path_image, size_of_image=size_of_image)
+    X, file_names = preprocess.load_images(path_image, size_of_image=size_of_image)
     X = preprocess.preprocess(X, size_of_image=size_of_image)
 
     # Load trained model
     model = models.load_model(path_model)
-    model.summary()
+    # model.summary()
 
     # Load label_name from .json
     with open(path_json, 'r') as f:
@@ -69,7 +69,8 @@ def main(arg_list=None):
         prediction_name.append([label_name[str(index.item())]
                                 for index in top_k_index])
 
-    for prediction in prediction_name:
+    for file, prediction in zip(file_names, prediction_name):
+        print("Below are the top {} likely Pokemon in {}".format(top_k, file))
         print(prediction)
     
 ############################################################################################

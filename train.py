@@ -80,10 +80,13 @@ def main(arg_list=None):
     # data_gen.fit(X_train)
 
     """ Train CNN Model """
+    early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss', patience=5)
+
     model, history = CNNmodel.train_model(X_train, y_train, num_classes, path_model, model_name=model_name, epochs=epochs,
                                           validation_data=(
                                               X_test, y_test), size_of_image=size_of_image, data_gen=data_gen,
-                                          path_checkpoint=PATH_CHECKPOINT)
+                                          path_checkpoint=PATH_CHECKPOINT, callbacks=[early_stop])
 
     """ Evaluate Model """
     CNNmodel.evaluate_model(model, X_test,

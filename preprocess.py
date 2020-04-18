@@ -87,13 +87,16 @@ def load_images(path, size_of_image=SIZE_OF_IMAGE):
     """
 
     X = [] # Stores images
+    file_names = [] # Stores file names
     if os.path.isfile(path):  # Single image
         try:
             # Read in image
             image = cv.imread(path)
             # Resize image so that all images are of the same size
             image = cv.resize(image, (size_of_image, size_of_image))
+
             X.append(image)
+            file_names.append(path)
         except:
             print("Failed to read and resize image: ", path)
 
@@ -108,13 +111,14 @@ def load_images(path, size_of_image=SIZE_OF_IMAGE):
                     image = cv.resize(image, (size_of_image, size_of_image))
 
                     X.append(image)
+                    file_names.append(path_image)
                 except:
                     print("Failed to read and resize image: ", full_path)
     
     # Convert X into a numpy array
     X = np.array(X)
 
-    return X
+    return X, file_names
 
 def preprocess(X, size_of_image=SIZE_OF_IMAGE, grayscale=GRAYSCALE):
     """

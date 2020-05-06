@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pokedex</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <h1>Welcome to Pokedex!</h1>
+        <p>This is a simple webpage for you to find out the information of the new Pokemon you just discovered!</p>
+
+        <img id="img" src="" alt="Image Preview" height="200" style="display: none;">
+        <br>
+        <input type="file" id="selectedFile" style="display: none;" />
+        <input type="button" value="Choose File" onclick="document.getElementById('selectedFile').click();" />
+        <br>
+        <button id="classify">Classify!</button>
+        <br>
+        <h3 id="result" style="display: none;"></h3>
+    </div>
+</body>
+
+<script>
+    var image;
+    var model;
+    var label_name;
+
+    $(document).ready(async () => {
+        // Load ./label_name.json file which mapping index to Pokemon names
+        loadJSON('./label_name.json');
+        
+        // Load the pretrained model
+        model = await tf.loadLayersModel('tfjs_model/model.json');
+
+        $('input[type=file]').on('change', () => {
+        readImage();
+        });
+
+        $('#classify').on('click', () => {
+        predict($('#img')[0]);
+        });
+    });
+
+    async function loadJSON(path) { // A function to load ./label_name.json
+        await $.getJSON(path, (result) => {
+            label_name = result;
+        });
+    }
+
+    function readImage() { // A function to read input image
+        var preview = document.querySelector('img');
+        image = document.querySelector('input[type=file]').files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+            preview.style.display = "inline";
+        }
+
+        if (image) {
+            reader.readAsDataURL(image);
+        } else {
+            preview.src = "";
+        }
+    }
+
+    async function predict(image) { // A function that predicts the image using the given model
+        // Convert the image into tensor with correct shape
+        image = tf.browser.fromPixels(image, 3).resizeNearestNeighbor([128, 128]).expandDims().toFloat().reverse(-
+        1);
+        // Preprocess the tensor using the same steps for train data
+        image = image.div(255);
+
+        // Get the prediction
+        var prediction = await model.predict(image);
+        prediction = prediction.softmax().reshape([150]);
+
+        // Show the top-5 predicted Pokemon names
+        var top_5_index;
+        var top_5_name = [];
+        var top_5_percentage;
+
+        const {
+            values,
+            indices
+        } = tf.topk(prediction, 5);
+        top_5_index = indices.dataSync();
+        top_5_percentage = values.dataSync();
+        for (let i = 0; i < 5; i++) {
+            top_5_name.push(label_name[top_5_index[i]] + ": " + (top_5_percentage[i] * 100).toFixed(2) + "%" +
+                "<br>");
+        }
+
+        $('#result')[0].style.display = 'inline';
+        $('#result')[0].innerHTML = top_5_name.join('');
+    }
+</script>
+
+</html>

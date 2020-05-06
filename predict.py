@@ -50,6 +50,7 @@ def main(arg_list=None):
 
     # Load and preprocess images
     X, file_names = preprocess.load_images(path_image, size_of_image=size_of_image)
+    print(X)
     X = preprocess.preprocess(X, size_of_image=size_of_image)
 
     # Load trained model
@@ -62,6 +63,7 @@ def main(arg_list=None):
     
     # Make predictions
     predictions_int = model.predict(X)
+    print(predictions_int)
     prediction_name = [] # Stores top-k predicted pokemon names of the input images
     for prediction in predictions_int:
         # Find indices with top-k highest values (numpy array: [highest, ..., lowest])

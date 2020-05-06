@@ -11,15 +11,18 @@
     <div style="text-align: center;">
         <h1>Welcome to Pokedex!</h1>
         <p>This is a simple webpage for you to find out the information of the new Pokemon you just discovered!</p>
-
-        <img id="img" src="" alt="Image Preview" height="200" style="display: none;">
         <br>
-        <input type="file" id="selectedFile" style="display: none;" />
-        <input type="button" value="Choose File" onclick="document.getElementById('selectedFile').click();" />
-        <br>
-        <button id="classify">Classify!</button>
-        <br>
-        <h3 id="result" style="display: none;"></h3>
+        <h6 id="loading">Loading...</h6>
+        <div id='predict' style="display: none;">
+            <img id="img" src="" alt="Image Preview" height="200" style="display: none;">
+            <br>
+            <input type="file" id="selectedFile" style="display: none;" />
+            <input type="button" value="Choose File" onclick="document.getElementById('selectedFile').click();" />
+            <br>
+            <button id="classify">Classify!</button>
+            <br>
+            <h3 id="result" style="display: none;"></h3>
+        </div>
     </div>
 </body>
 
@@ -31,16 +34,19 @@
     $(document).ready(async () => {
         // Load ./label_name.json file which mapping index to Pokemon names
         loadJSON('./label_name.json');
-        
+
         // Load the pretrained model
         model = await tf.loadLayersModel('tfjs_model/model.json');
+        // Hide Loading sign and show buttons for prediction
+        $("#loading")[0].style.display = "none";
+        $("#predict")[0].style.display = "inline";
 
         $('input[type=file]').on('change', () => {
-        readImage();
+            readImage();
         });
 
         $('#classify').on('click', () => {
-        predict($('#img')[0]);
+            predict($('#img')[0]);
         });
     });
 
@@ -70,7 +76,7 @@
     async function predict(image) { // A function that predicts the image using the given model
         // Convert the image into tensor with correct shape
         image = tf.browser.fromPixels(image, 3).resizeNearestNeighbor([128, 128]).expandDims().toFloat().reverse(-
-        1);
+            1);
         // Preprocess the tensor using the same steps for train data
         image = image.div(255);
 

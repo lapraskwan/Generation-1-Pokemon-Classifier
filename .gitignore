@@ -4,4 +4,4 @@
 y_map_old.json
 analyze_dataset.py
 website/node_modules
-checkpoints
+/checkpoints

@@ -1,19 +1,34 @@
 # Generation-1-Pokemon-Classifier
 This is a simple project to classify Generation 1 Pokemon given an image, using a CNN model.
 
+## Demo
+You can input an image (HEIC files are not supported), and the model will output the top-5 possible Generation One Pokemon 
+in the image.
+
+<img width="300" alt="Screenshot 2020-05-09 at 3 35 03 PM" src="https://user-images.githubusercontent.com/50293176/81577694-58324880-93dc-11ea-8441-095c0aa801cf.png">
+<img width="300" alt="Screenshot 2020-05-11 at 11 16 25 PM" src="https://user-images.githubusercontent.com/50293176/81578517-7c425980-93dd-11ea-96e1-65dc78dbf38e.png">
+
+The above website can be accessed through the following link: https://pokemon-gen-1-classification.herokuapp.com
+It may take several seconds to load the model. Please refresh the page if it does not finish loading after a long time.
+
+## Model Training and Evaluation
+
+If you are interested in the codes for model training and evaluation, please follow the guide below.
+
 ## Prerequisites
 
-Please download the following packages if you haven't already.
+Please download the following libraries if you haven't already.
 
 1. NumPy
 2. Tensorflow 2.0
 3. OpenCV
 4. Scikit-learn
-5. Seaborn (Skip this if you are not going to visualize the results)
+5. Seaborn
+6. Matplotlib
 
 ## Dataset
 You can download the dataset I used in the link below. You only need this if you are going to train
-a new model, because a trained model is provide in the folder "saved_models".
+a new model, because a trained model is provided in the folder "saved_models" already.
 
 https://drive.google.com/drive/folders/10UtpoOe2_xoE3V-CDdxzZB6mCZ_92Rky?usp=sharing
 

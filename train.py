@@ -4,7 +4,7 @@
     It can be called in command line (see usage below), 
     or from another script (e.g. train.main(['-e', '5', '-i', '96'])).
     
-    usage: train.py [-h] [-e EPOCHS] [-i SIZE_OF_IMAGE] [-j PATH_JSON] [-k TOP_K]
+    usage: train.py [-h] [-e EPOCHS] [-i SIZE_OF_IMAGE] [-j PATH_JSON] [-k TOP_K] [-l LEARNING_RATE]
                 [-m MODEL_NAME] [-p PATH_MODEL] [-t TEST_SIZE] [-T TITLE]
 """
 
@@ -15,7 +15,7 @@ import argparse
 
 import preprocess
 import CNNmodel
-from config import PATH_DATASET, SIZE_OF_IMAGE, GRAYSCALE, TEST_SIZE, RANDOM_SEED, EPOCHS, PATH_CHECKPOINT, MODEL_NAME, PATH_JSON, PATH_MODEL
+from config import PATH_DATASET, SIZE_OF_IMAGE, GRAYSCALE, TEST_SIZE, RANDOM_SEED, EPOCHS, PATH_CHECKPOINT, MODEL_NAME, PATH_JSON, PATH_MODEL, LEARNING_RATE
 
 def get_parser():
     # Parse Arguments
@@ -29,6 +29,8 @@ def get_parser():
                         help="The path to save the dictionary of integer labels mapping to Pokemon names")
     parser.add_argument('-k', '--top_k', type=int,
                         help="top_k accuracy to be shown when evaluateing model")
+    parser.add_argument('-l', '--learning_rate', type=float,
+                        help="learning rate when training the model")
     parser.add_argument('-m', '--model_name',
                         help="The model to be trained")
     parser.add_argument('-p', '--path_model',
@@ -57,6 +59,7 @@ def main(arg_list=None):
     path_model = args.path_model if args.path_model else PATH_MODEL
     test_size = args.test_size if args.test_size else TEST_SIZE
     title = args.title if args.title else None
+    learning_rate = args.learning_rate if args.learning_rate else LEARNING_RATE
 
     """ Load Images and Data Preprocessing """
     # Load image from dataset
@@ -80,13 +83,10 @@ def main(arg_list=None):
     # data_gen.fit(X_train)
 
     """ Train CNN Model """
-    early_stop = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss', patience=5)
-
     model, history = CNNmodel.train_model(X_train, y_train, num_classes, path_model, model_name=model_name, epochs=epochs,
                                           validation_data=(
                                               X_test, y_test), size_of_image=size_of_image, data_gen=data_gen,
-                                          path_checkpoint=PATH_CHECKPOINT, callbacks=[early_stop])
+                                          path_checkpoint=PATH_CHECKPOINT, learning_rate=learning_rate)
 
     """ Evaluate Model """
     CNNmodel.evaluate_model(model, X_test,

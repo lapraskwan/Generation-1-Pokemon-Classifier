@@ -8,6 +8,7 @@ from tensorflow.keras import layers, models, applications
 import sys
 import matplotlib.pyplot as plt
 import seaborn as sns
+import math
 
 from config import CHANNEL, SIZE_OF_IMAGE, TEST_SIZE, RANDOM_SEED, EPOCHS, MODEL_NAME, TOP_K, PATH_CHECKPOINT
 
@@ -53,7 +54,7 @@ def get_model(num_classes, model_name=MODEL_NAME, size_of_image=SIZE_OF_IMAGE):
             base_model,
             global_average_layer,
             layers.Flatten(),
-            layers.Dense(256, activation='relu'),
+            layers.Dense(196, activation='relu'),
             layers.Dropout(0.3),
             output_layer
         ])
@@ -70,7 +71,7 @@ def get_model(num_classes, model_name=MODEL_NAME, size_of_image=SIZE_OF_IMAGE):
             base_model,
             global_average_layer,
             layers.Flatten(),
-            layers.Dense(256, activation='relu'),
+            layers.Dense(196, activation='relu'),
             layers.Dropout(0.3),
             output_layer
         ])
@@ -83,7 +84,7 @@ def get_model(num_classes, model_name=MODEL_NAME, size_of_image=SIZE_OF_IMAGE):
 
 def train_model(X_train, y_train, num_classes, path_model, model_name=MODEL_NAME, epochs=EPOCHS, 
                 validation_data=None, size_of_image=SIZE_OF_IMAGE, data_gen=None, 
-                path_checkpoint=PATH_CHECKPOINT):
+                path_checkpoint=PATH_CHECKPOINT, learning_rate=0.001):
     """
     Trains and saves a CNN model with the train set.
 
@@ -108,22 +109,29 @@ def train_model(X_train, y_train, num_classes, path_model, model_name=MODEL_NAME
     model = get_model(num_classes, model_name=model_name, size_of_image=size_of_image)
     model.summary()
 
+    # Set optimizer with learning rate
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+
+    # Set early stopping
+    early_stop = tf.keras.callbacks.EarlyStopping(
+        monitor='val_loss', patience=5)
+
     # Save the epoch with the highest val_accuracy
     checkpoint = tf.keras.callbacks.ModelCheckpoint(path_checkpoint,
                                                     verbose=2, monitor='val_accuracy', save_best_only=True)
 
-    model.compile(optimizer='adam',
+    model.compile(optimizer=optimizer,
                 loss=tf.keras.losses.SparseCategoricalCrossentropy(
                     from_logits=True),
                 metrics=['accuracy'])
-
+    
     # Train model with/without data augmentation
     if data_gen is None:
-        history = model.fit(X_train, y_train, epochs=EPOCHS,
+        history = model.fit(X_train, y_train, epochs=epochs,
                             validation_data=validation_data)
     else:
         history = model.fit(data_gen.flow(X_train, y_train), epochs=epochs,
-                            validation_data=validation_data, callbacks=[checkpoint])
+                            validation_data=validation_data, callbacks=[checkpoint, early_stop], steps_per_epoch=math.ceil(len(X_train)/32))
 
     # Load the weights of the epoch with the highest val_accuracy
     model.load_weights(path_checkpoint)

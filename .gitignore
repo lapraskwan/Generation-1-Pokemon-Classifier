@@ -1,6 +1,7 @@
-/dataset/*
-/dataset2/*
-/dataset3/*
+/dataset
+/dataset2
+/dataset3
 y_map_old.json
 analyze_dataset.py
 website/node_modules
+checkpoints
